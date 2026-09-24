@@ -1,0 +1,618 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>PerfumeBench Assistant — Proyecto maestro</title>
+<meta name="description" content="Arquitectura completa para un asistente físico de perfumería con ESP32-S3, voz en tiempo real, memoria de laboratorio y herramientas especializadas.">
+<style>
+:root{--bg:#0b0d12;--panel:#121722;--panel2:#171e2b;--text:#eef2f7;--muted:#a9b4c3;--accent:#8ad7c1;--accent2:#8fb8ff;--warn:#ffd479;--danger:#ff9c9c;--line:#263143;--code:#0a0f18}
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:linear-gradient(180deg,#090b10,#0d1118 35%,#0a0d13);color:var(--text);font:16px/1.55 Inter,ui-sans-serif,system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+a{color:var(--accent2)}code,kbd,pre{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+header{padding:64px 24px 40px;border-bottom:1px solid var(--line);background:radial-gradient(circle at 15% 0%,#17352f 0,transparent 38%),radial-gradient(circle at 90% 5%,#172943 0,transparent 35%)}
+.wrap{max-width:1180px;margin:auto}.eyebrow{color:var(--accent);font-weight:700;letter-spacing:.12em;text-transform:uppercase;font-size:.78rem}.hero h1{font-size:clamp(2.2rem,6vw,5rem);line-height:.96;margin:.2em 0}.hero p{max-width:850px;color:#cad3df;font-size:1.12rem}.badges{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}.badge{padding:7px 11px;border:1px solid var(--line);border-radius:999px;background:#0c131b;color:#cbd6e5;font-size:.86rem}
+nav{position:sticky;top:0;z-index:10;background:rgba(9,12,18,.92);backdrop-filter:blur(12px);border-bottom:1px solid var(--line)}nav .wrap{display:flex;gap:16px;overflow:auto;padding:12px 20px}nav a{white-space:nowrap;text-decoration:none;color:#bcc7d7;font-size:.9rem}nav a:hover{color:white}
+main{padding:28px 20px 80px}section{margin:56px 0}.section-title{display:flex;align-items:center;gap:12px;margin-bottom:16px}.section-title span{display:inline-grid;place-items:center;width:34px;height:34px;border-radius:10px;background:#16243a;color:#bdd3ff;font-weight:800}.section-title h2{margin:0;font-size:1.8rem}
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:16px}.card{grid-column:span 6;background:linear-gradient(180deg,var(--panel),#10141d);border:1px solid var(--line);border-radius:16px;padding:20px}.card.full{grid-column:1/-1}.card.third{grid-column:span 4}.card h3{margin-top:0}.muted{color:var(--muted)}.good{color:var(--accent)}.warn{color:var(--warn)}.danger{color:var(--danger)}
+table{width:100%;border-collapse:collapse;margin:12px 0;background:#0f141d;border:1px solid var(--line);border-radius:12px;overflow:hidden}th,td{padding:11px 12px;border-bottom:1px solid #202a39;text-align:left;vertical-align:top}th{background:#151c27;color:#cfe0f7;font-size:.88rem}tr:last-child td{border-bottom:none}
+pre{background:var(--code);border:1px solid #253148;border-radius:12px;padding:16px;overflow:auto;color:#dbe7f4;white-space:pre-wrap}.diagram{font-size:.91rem}.callout{border-left:4px solid var(--accent);background:#10201e;padding:14px 16px;border-radius:0 10px 10px 0}.callout.warnc{border-left-color:var(--warn);background:#211b0f}.callout.dangerc{border-left-color:var(--danger);background:#241416}
+.steps{counter-reset:s}.step{counter-increment:s;display:grid;grid-template-columns:44px 1fr;gap:14px;margin:18px 0}.step:before{content:counter(s);width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:#18304a;color:#d9eaff;font-weight:800}.step h3{margin:2px 0 4px}
+.pill{display:inline-block;padding:3px 8px;border-radius:999px;border:1px solid #344259;color:#c5d2e6;font-size:.78rem;margin:2px}.kpi{font-size:2rem;font-weight:800;margin:.1em 0}.small{font-size:.88rem}.footer{border-top:1px solid var(--line);padding:30px 20px 50px;color:#95a2b3}.check td:first-child{width:28px}
+@media(max-width:850px){.card,.card.third{grid-column:1/-1}.hero h1{font-size:3rem}th,td{font-size:.9rem}}
+</style>
+</head>
+<body>
+<header>
+<div class="wrap hero">
+<div class="eyebrow">Proyecto maestro · v0.1 · 24/09/2026</div>
+<h1>PerfumeBench Assistant</h1>
+<p>Asistente físico de banco para perfumería: voz manos libres, cálculos, inventario, fórmulas, revisiones y notas de laboratorio, con ESP32-S3 como terminal y un backend conectado a OpenAI Realtime.</p>
+<div class="badges">
+<span class="badge">ESP32-S3 N16R8</span><span class="badge">I²S audio</span><span class="badge">OpenAI Realtime</span><span class="badge">WebSocket</span><span class="badge">Tool calling</span><span class="badge">Memoria de laboratorio</span><span class="badge">Vercel</span>
+</div>
+</div>
+</header>
+
+<nav><div class="wrap">
+<a href="#objetivo">Objetivo</a><a href="#arquitectura">Arquitectura</a><a href="#bom">BOM</a><a href="#pinout">Pinout</a><a href="#firmware">Firmware</a><a href="#backend">Backend</a><a href="#datos">Datos</a><a href="#tools">Tools</a><a href="#seguridad">Seguridad</a><a href="#dashboard">Dashboard</a><a href="#roadmap">Roadmap</a><a href="#testing">Testing</a><a href="#estructura">Repo</a><a href="#referencias">Referencias</a>
+</div></nav>
+
+<main class="wrap">
+<section id="objetivo">
+<div class="section-title"><span>1</span><h2>Objetivo y alcance</h2></div>
+<div class="grid">
+<div class="card">
+<h3>Qué debe lograr</h3>
+<ul>
+<li>Permitir conversación natural mientras se pesa o formula.</li>
+<li>Consultar inventario, diluciones, fórmulas y revisiones sin tocar el celular.</li>
+<li>Calcular porcentajes, escalados y adiciones de materias primas.</li>
+<li>Guardar notas experimentales por voz y mantener trazabilidad.</li>
+<li>Mostrar datos críticos en una pantalla pequeña.</li>
+<li>Conservar estado entre sesiones mediante una memoria de laboratorio estructurada.</li>
+</ul>
+</div>
+<div class="card">
+<h3>Qué NO debe ser en v1</h3>
+<ul>
+<li>Un sustituto completo de la app de ChatGPT.</li>
+<li>Un sistema que guarde la API key de OpenAI en firmware.</li>
+<li>Un instrumento de medición química.</li>
+<li>Un sistema que invente límites regulatorios o IFRA.</li>
+<li>Un dispositivo siempre escuchando desde el primer día.</li>
+</ul>
+</div>
+<div class="card full">
+<h3>Principio de diseño</h3>
+<p class="kpi">El ESP32 es el terminal. El cerebro vive en el backend.</p>
+<p class="muted">El dispositivo captura y reproduce audio, muestra estado y ejecuta una máquina de estados simple. El backend concentra autenticación, conexión a OpenAI, herramientas, memoria, control de versiones y reglas del dominio.</p>
+</div>
+</div>
+</section>
+
+<section id="arquitectura">
+<div class="section-title"><span>2</span><h2>Arquitectura recomendada</h2></div>
+<div class="card full">
+<pre class="diagram">┌──────────────────────────── PERFUME BENCH ────────────────────────────┐
+│                                                                      │
+│  🎙 INMP441 ──I²S──► ESP32-S3 N16R8 ──Wi‑Fi/WSS──► Device Gateway   │
+│                        │   ▲                         (Vercel/Node)     │
+│                        │   │                               │           │
+│                  GC9A01   MAX98357A                        │           │
+│                  display     │                             ▼           │
+│                           🔊 speaker                OpenAI Realtime    │
+│                                                        │   │          │
+│                                                        │   ├─ voz     │
+│                                                        │   └─ tools   │
+│                                                        ▼              │
+│                                                Tool / Memory Layer    │
+│                                           ┌────────┬────────┬──────┐ │
+│                                           │Inventory│Formulae│Notes │ │
+│                                           └────────┴────────┴──────┘ │
+│                                                        │              │
+│                                                        ▼              │
+│                                                Postgres / JSON DB     │
+└──────────────────────────────────────────────────────────────────────┘</pre>
+</div>
+<div class="grid">
+<div class="card third"><h3>Capa 1 · Device</h3><p>Audio, botones, LEDs, pantalla, Wi‑Fi, buffer y reconexión.</p></div>
+<div class="card third"><h3>Capa 2 · Gateway</h3><p>Autentica dispositivo, mantiene WebSocket, sesión Realtime, tool calls y streaming.</p></div>
+<div class="card third"><h3>Capa 3 · Lab Memory</h3><p>Inventario, diluciones, fórmulas, versiones, lotes, evaluaciones y preferencias del laboratorio.</p></div>
+</div>
+<div class="callout">
+<strong>Estado conversacional.</strong> La API Conversations permite conservar una conversación con un ID durable entre sesiones, dispositivos o procesos. La memoria operativa del laboratorio, sin embargo, debe quedar además en tablas/objetos propios para que sea auditable y no dependa sólo del contexto del modelo.
+</div>
+</section>
+
+<section id="bom">
+<div class="section-title"><span>3</span><h2>Lista de materiales — BOM</h2></div>
+<div class="card full">
+<table>
+<thead><tr><th>Ítem</th><th>Cant.</th><th>Recomendación</th><th>Función</th><th>Prioridad</th></tr></thead>
+<tbody>
+<tr><td>ESP32-S3</td><td>1</td><td>DevKitC-1 / N16R8, 16 MB Flash + 8 MB PSRAM</td><td>CPU, Wi‑Fi, buffers de audio, UI</td><td><span class="pill">Obligatorio</span></td></tr>
+<tr><td>Micrófono I²S</td><td>1</td><td>INMP441</td><td>Captura digital de voz</td><td><span class="pill">Obligatorio</span></td></tr>
+<tr><td>Amplificador I²S</td><td>1</td><td>MAX98357A</td><td>DAC + amplificador clase D</td><td><span class="pill">Obligatorio</span></td></tr>
+<tr><td>Parlante</td><td>1</td><td>3 W, 4–8 Ω</td><td>Salida de voz</td><td><span class="pill">Obligatorio</span></td></tr>
+<tr><td>Botón PTT</td><td>1</td><td>12×12 mm o pulsador de panel</td><td>Push-to-talk</td><td><span class="pill">Obligatorio v1</span></td></tr>
+<tr><td>LED RGB</td><td>1</td><td>WS2812 / NeoPixel</td><td>Estados: idle, listen, think, speak, error</td><td><span class="pill">Recomendado</span></td></tr>
+<tr><td>Pantalla</td><td>1</td><td>GC9A01 240×240 SPI</td><td>Fórmula, gramos, material, estado</td><td><span class="pill">Recomendado</span></td></tr>
+<tr><td>DAC auxiliar</td><td>1</td><td>PCM5102A</td><td>Salida 3,5 mm / parlante externo</td><td><span class="pill">Opcional</span></td></tr>
+<tr><td>Encoder rotativo</td><td>1</td><td>EC11 + pulsador</td><td>Volumen / navegación</td><td><span class="pill">Opcional v2</span></td></tr>
+<tr><td>Anillo LED</td><td>1</td><td>WS2812 8–16 LEDs</td><td>Feedback tipo smart speaker</td><td><span class="pill">Opcional</span></td></tr>
+<tr><td>Fuente USB‑C</td><td>1</td><td>5 V / ≥1 A</td><td>Alimentación</td><td><span class="pill">Obligatorio</span></td></tr>
+<tr><td>Protoboard</td><td>1</td><td>400/830 puntos</td><td>Prototipo</td><td><span class="pill">MVP</span></td></tr>
+<tr><td>Jumpers</td><td>1 set</td><td>M-M / M-F</td><td>Cableado</td><td><span class="pill">MVP</span></td></tr>
+<tr><td>Caja</td><td>1</td><td>Impresión 3D</td><td>Dispositivo definitivo</td><td><span class="pill">Fase 4</span></td></tr>
+<tr><td>PCB</td><td>1</td><td>Custom</td><td>Integración definitiva</td><td><span class="pill">Fase 5</span></td></tr>
+</tbody>
+</table>
+<p class="small muted">El conjunto ESP32‑S3 + INMP441 + MAX98357A + parlante es una combinación ya utilizada por múltiples proyectos de asistentes de voz. Para wake word local conviene una variante S3 con PSRAM.</p>
+</div>
+</section>
+
+<section id="pinout">
+<div class="section-title"><span>4</span><h2>Pinout de referencia</h2></div>
+<div class="grid">
+<div class="card">
+<h3>INMP441 → ESP32-S3</h3>
+<table><tr><th>INMP441</th><th>GPIO</th></tr><tr><td>SD</td><td>40</td></tr><tr><td>WS/LRCLK</td><td>41</td></tr><tr><td>SCK/BCLK</td><td>42</td></tr><tr><td>L/R</td><td>GND</td></tr><tr><td>VDD</td><td>3.3 V</td></tr><tr><td>GND</td><td>GND</td></tr></table>
+</div>
+<div class="card">
+<h3>MAX98357A → ESP32-S3</h3>
+<table><tr><th>MAX98357A</th><th>GPIO</th></tr><tr><td>DIN</td><td>17</td></tr><tr><td>BCLK</td><td>47</td></tr><tr><td>LRC</td><td>21</td></tr><tr><td>SD/EN</td><td>38 o 3.3 V</td></tr><tr><td>VIN</td><td>5 V</td></tr><tr><td>GND</td><td>GND</td></tr></table>
+</div>
+<div class="card full">
+<h3>Controles</h3>
+<table><tr><th>Función</th><th>GPIO sugerido</th><th>Notas</th></tr><tr><td>PTT</td><td>GPIO 1</td><td>INPUT_PULLUP; activo LOW</td></tr><tr><td>NeoPixel</td><td>GPIO 48</td><td>Integrado en muchas S3</td></tr><tr><td>Display SPI</td><td>Asignar según placa</td><td>Validar conflictos antes de soldar</td></tr></table>
+<div class="callout warnc"><strong>Importante:</strong> este pinout es una referencia basada en un proyecto probado con ESP32‑S3 N16R8. Antes de fabricar PCB hay que fijar el modelo exacto de DevKit y validar GPIO disponibles, straps de boot y periféricos integrados.</div>
+</div>
+</div>
+</section>
+
+<section id="firmware">
+<div class="section-title"><span>5</span><h2>Firmware ESP32</h2></div>
+<div class="grid">
+<div class="card">
+<h3>Stack</h3>
+<ul>
+<li>PlatformIO.</li><li>Arduino framework para ESP32.</li><li>FreeRTOS.</li><li>I²S RX para micrófono.</li><li>I²S TX para audio.</li><li>WebSocket seguro WSS.</li><li>NVS para configuración.</li><li>OTA para actualizaciones.</li>
+</ul>
+</div>
+<div class="card">
+<h3>Tareas FreeRTOS</h3>
+<ul>
+<li><code>audio_capture_task</code></li>
+<li><code>audio_playback_task</code></li>
+<li><code>network_task</code></li>
+<li><code>ui_task</code></li>
+<li><code>button_task</code></li>
+<li><code>watchdog_task</code></li>
+</ul>
+</div>
+<div class="card full">
+<h3>Máquina de estados</h3>
+<pre>IDLE
+  │ PTT
+  ▼
+LISTENING ─────► STREAMING_AUDIO
+  │ release             │
+  └─────────────────────┘
+          │
+          ▼
+      THINKING
+          │
+          ▼
+       SPEAKING
+          │
+          └────► IDLE
+
+Cualquier estado ──error/red──► RECONNECTING ──► IDLE</pre>
+</div>
+<div class="card full">
+<h3>Protocolo de mensajes dispositivo ↔ gateway</h3>
+<pre>{
+  "type": "device.hello",
+  "device_id": "perfume-bench-01",
+  "fw": "0.1.0",
+  "capabilities": ["audio_in","audio_out","display","ptt"]
+}
+
+{
+  "type": "audio.chunk",
+  "seq": 1842,
+  "format": "pcm16",
+  "sample_rate": 24000,
+  "payload": "&lt;base64-or-binary&gt;"
+}
+
+{
+  "type": "ui.card",
+  "title": "HEDIONE",
+  "line1": "Actual 0.380 g",
+  "line2": "+15% = 0.057 g",
+  "line3": "Final 0.437 g"
+}</pre>
+</div>
+</div>
+</section>
+
+<section id="backend">
+<div class="section-title"><span>6</span><h2>Backend / Device Gateway</h2></div>
+<div class="grid">
+<div class="card"><h3>Runtime</h3><p>Node.js + TypeScript. Despliegue inicial en Vercel Functions con WebSockets; si aparecen límites de duración o latencia, migrar sólo el gateway a Cloud Run sin tocar el resto.</p></div>
+<div class="card"><h3>Responsabilidades</h3><ul><li>Autenticación de dispositivo.</li><li>Sesión Realtime.</li><li>Traducción de eventos.</li><li>Tool calling.</li><li>Persistencia.</li><li>Observabilidad.</li><li>Rate limiting.</li></ul></div>
+<div class="card full">
+<h3>Flujo de una interacción</h3>
+<pre>1. ESP32 abre WSS /api/device
+2. Gateway valida device_id + device_token
+3. PTT → audio PCM empieza a fluir
+4. Gateway lo envía a OpenAI Realtime
+5. El modelo:
+   a) responde por audio, o
+   b) pide una tool
+6. Gateway ejecuta tool contra memoria de laboratorio
+7. Resultado vuelve al modelo
+8. Modelo produce respuesta hablada
+9. Gateway transmite audio + tarjeta UI al ESP32
+10. Se guarda transcript + acciones + revisión de fórmula si corresponde</pre>
+</div>
+</div>
+</section>
+
+<section id="datos">
+<div class="section-title"><span>7</span><h2>Modelo de datos del laboratorio</h2></div>
+<div class="card full">
+<table>
+<thead><tr><th>Entidad</th><th>Campos clave</th><th>Uso</th></tr></thead>
+<tbody>
+<tr><td>materials</td><td>id, name, cas, supplier, purity, stock_g, notes</td><td>Inventario de materias primas</td></tr>
+<tr><td>dilutions</td><td>material_id, concentration_pct, solvent, prepared_g, date</td><td>Diluciones de trabajo</td></tr>
+<tr><td>formulas</td><td>id, name, purpose, status</td><td>Identidad de cada perfume/acorde</td></tr>
+<tr><td>formula_versions</td><td>formula_id, version, total_g, created_at, parent_version</td><td>Trazabilidad</td></tr>
+<tr><td>formula_items</td><td>version_id, material_id, grams, dilution_id</td><td>Composición</td></tr>
+<tr><td>evaluations</td><td>version_id, age_hours, blotter/skin, note, score</td><td>Evaluación sensorial</td></tr>
+<tr><td>lab_notes</td><td>timestamp, text, tags, formula_version</td><td>Cuaderno hablado</td></tr>
+<tr><td>devices</td><td>device_id, token_hash, fw, last_seen</td><td>Control de terminales</td></tr>
+<tr><td>conversations</td><td>conversation_id, device_id, started_at</td><td>Vincular sesiones</td></tr>
+<tr><td>audit_log</td><td>actor, action, entity, before, after</td><td>Recuperación y control de cambios</td></tr>
+</tbody>
+</table>
+</div>
+<div class="grid">
+<div class="card">
+<h3>Ejemplo material</h3>
+<pre>{
+  "name": "Safraleine",
+  "purity": 100,
+  "stock_g": 8.42,
+  "working_dilutions": [
+    {"pct": 10, "solvent": "DPG"}
+  ]
+}</pre>
+</div>
+<div class="card">
+<h3>Ejemplo fórmula</h3>
+<pre>{
+  "name": "Fougere 04",
+  "version": 7,
+  "total_g": 4.238,
+  "items": [
+    {"material": "Hedione", "g": 0.380},
+    {"material": "Iso E Super", "g": 0.620}
+  ]
+}</pre>
+</div>
+</div>
+</section>
+
+<section id="tools">
+<div class="section-title"><span>8</span><h2>Herramientas del asistente</h2></div>
+<div class="card full">
+<table>
+<thead><tr><th>Tool</th><th>Descripción</th><th>¿Escribe datos?</th></tr></thead>
+<tbody>
+<tr><td><code>inventory.get_material</code></td><td>Stock, pureza, proveedor, notas y diluciones.</td><td>No</td></tr>
+<tr><td><code>inventory.search</code></td><td>Búsqueda por nombre, familia o alias.</td><td>No</td></tr>
+<tr><td><code>dilution.calculate</code></td><td>Calcula soluto/solvente para % y masa final.</td><td>No</td></tr>
+<tr><td><code>formula.get</code></td><td>Obtiene versión actual o histórica.</td><td>No</td></tr>
+<tr><td><code>formula.scale</code></td><td>Escala una fórmula a un peso objetivo.</td><td>No</td></tr>
+<tr><td><code>formula.propose_change</code></td><td>Calcula el efecto de una modificación sin guardarla.</td><td>No</td></tr>
+<tr><td><code>formula.commit_change</code></td><td>Crea nueva revisión inmutable.</td><td>Sí</td></tr>
+<tr><td><code>evaluation.add</code></td><td>Registra una evaluación olfativa.</td><td>Sí</td></tr>
+<tr><td><code>lab_note.add</code></td><td>Guarda nota libre por voz.</td><td>Sí</td></tr>
+<tr><td><code>session.undo_last_write</code></td><td>Revierte última escritura reversible.</td><td>Sí</td></tr>
+</tbody>
+</table>
+</div>
+<div class="callout warnc">
+<strong>Regla UX:</strong> cualquier modificación de fórmula debe ser “propuesta → lectura del resultado → confirmación → commit”. Consultas y cálculos no requieren confirmación.
+</div>
+<div class="grid">
+<div class="card">
+<h3>Ejemplo</h3>
+<pre>Usuario:
+"Subí Hedione un 15%."
+
+Asistente:
+"Está en 0,380 g.
+Un 15% son 0,057 g.
+Quedaría 0,437 g.
+¿Creo una nueva revisión?"
+
+Usuario:
+"Sí."
+
+Tool:
+formula.commit_change(...)</pre>
+</div>
+<div class="card">
+<h3>Cálculo de dilución</h3>
+<pre>Usuario:
+"Quiero 5 gramos de Safraleine al 10%."
+
+Resultado:
+Safraleine puro = 0,500 g
+Solvente        = 4,500 g
+Total           = 5,000 g</pre>
+</div>
+</div>
+</section>
+
+<section id="prompt">
+<div class="section-title"><span>9</span><h2>Prompt operativo base</h2></div>
+<div class="card full">
+<pre>Sos PerfumeBench, un asistente de laboratorio especializado en perfumería.
+
+PRIORIDADES:
+1. Exactitud de masa, concentración y versión.
+2. Respuestas habladas breves.
+3. Nunca inventes inventario, pureza o concentración.
+4. Antes de escribir/modificar una fórmula, mostrás el cálculo y pedís confirmación.
+5. Registrás toda modificación como nueva revisión; nunca sobrescribís una revisión histórica.
+6. Si una materia prima tiene una dilución de trabajo, distinguís siempre "material puro" de "solución".
+7. Expresás masas en gramos con tres decimales salvo que el usuario pida otra precisión.
+8. Para límites regulatorios/IFRA, usás documentos cargados y citás la fuente; si no hay fuente, decís que no está verificado.
+9. Priorizás información observable y no presentás una hipótesis olfativa como dato químico.
+10. En voz, das primero el número o acción importante y luego la explicación.
+
+CONTEXTO:
+- El usuario trabaja con fórmulas por peso.
+- Inventario y diluciones son fuentes de verdad externas al modelo.
+- Los cambios de fórmula requieren confirmación explícita.</pre>
+</div>
+</section>
+
+<section id="seguridad">
+<div class="section-title"><span>10</span><h2>Seguridad, privacidad y confiabilidad</h2></div>
+<div class="grid">
+<div class="card">
+<h3>Secretos</h3>
+<ul><li>API key de OpenAI sólo en servidor.</li><li>Token individual por dispositivo.</li><li>Guardar únicamente hashes de tokens.</li><li>Rotación de credenciales.</li><li>Variables de entorno para secretos.</li></ul>
+</div>
+<div class="card">
+<h3>Datos</h3>
+<ul><li>Audio efímero por defecto.</li><li>Transcript opcional.</li><li>Audit log para escrituras.</li><li>Backups de fórmulas.</li><li>Export JSON/CSV.</li></ul>
+</div>
+<div class="card">
+<h3>Química</h3>
+<ul><li>Separar cálculo matemático de recomendación de seguridad.</li><li>No inferir límites IFRA.</li><li>Mostrar pureza/dilución en pantalla.</li><li>Alertar cuando falta unidad o concentración.</li></ul>
+</div>
+<div class="card">
+<h3>Robustez</h3>
+<ul><li>Watchdog.</li><li>Reconexión exponencial.</li><li>Buffer limitado.</li><li>CRC/secuencia de chunks.</li><li>OTA con rollback.</li></ul>
+</div>
+</div>
+<div class="callout dangerc"><strong>No colocar una API key larga dentro de <code>secrets.h</code> del firmware definitivo.</strong> Aunque algunos demos lo hacen, para este proyecto el dispositivo sólo debe autenticarse contra nuestro gateway.</div>
+</section>
+
+<section id="dashboard">
+<div class="section-title"><span>11</span><h2>Dashboard web</h2></div>
+<div class="grid">
+<div class="card third"><h3>Hoy</h3><p>Sesiones, notas recientes, últimas fórmulas modificadas.</p></div>
+<div class="card third"><h3>Inventario</h3><p>Stock, materiales bajos, diluciones, proveedor y pureza.</p></div>
+<div class="card third"><h3>Fórmulas</h3><p>Versiones, diff entre revisiones y escalado.</p></div>
+<div class="card third"><h3>Dispositivo</h3><p>Online/offline, firmware, RSSI, latencia, volumen.</p></div>
+<div class="card third"><h3>Conversaciones</h3><p>Transcript, tool calls, acciones confirmadas.</p></div>
+<div class="card third"><h3>Configuración</h3><p>Voz, idioma, PTT, wake word, retención de datos.</p></div>
+</div>
+</section>
+
+<section id="interfaz">
+<div class="section-title"><span>12</span><h2>Interfaz física</h2></div>
+<div class="card full">
+<pre>┌───────────────────────────┐
+│       PERFUME BENCH       │
+│                           │
+│         HEDIONE           │
+│                           │
+│     actual  0.380 g       │
+│     +15%    0.057 g       │
+│     final   0.437 g       │
+│                           │
+│   ● esperando confirmación│
+└───────────────────────────┘</pre>
+<p>El color/animación del LED debe comunicar el estado sin mirar la pantalla: <strong>idle</strong>, <strong>escuchando</strong>, <strong>procesando</strong>, <strong>hablando</strong>, <strong>confirmación pendiente</strong> y <strong>error</strong>.</p>
+</div>
+</section>
+
+<section id="roadmap">
+<div class="section-title"><span>13</span><h2>Roadmap de implementación</h2></div>
+<div class="step"><div><h3>Fase 0 — Spike de audio</h3><p>ESP32 + INMP441 + MAX98357A. Grabar/reproducir audio local. Medir ruido y niveles.</p></div></div>
+<div class="step"><div><h3>Fase 1 — MVP Push-to-Talk</h3><p>PTT → gateway → OpenAI Realtime → respuesta por parlante. Sin memoria persistente.</p></div></div>
+<div class="step"><div><h3>Fase 2 — Inventario + cálculos</h3><p>Agregar herramientas de consulta y cálculo de diluciones/escalados.</p></div></div>
+<div class="step"><div><h3>Fase 3 — Fórmulas versionadas</h3><p>Propuesta, confirmación, commit, undo y audit log.</p></div></div>
+<div class="step"><div><h3>Fase 4 — Display + dashboard</h3><p>GC9A01, tarjetas de información, web de administración y OTA.</p></div></div>
+<div class="step"><div><h3>Fase 5 — Wake word</h3><p>Activación local o servidor, VAD, barge-in y conversación continua.</p></div></div>
+<div class="step"><div><h3>Fase 6 — Hardware definitivo</h3><p>PCB, caja 3D, fuente, acústica, montaje y botón/encoder de calidad.</p></div></div>
+</section>
+
+<section id="mvp">
+<div class="section-title"><span>14</span><h2>Definición exacta del MVP</h2></div>
+<div class="card full">
+<p class="kpi">“¿A cuánto tengo diluido el Safraleine?”</p>
+<p>El MVP está terminado cuando el usuario puede mantener presionado el botón, hacer esa pregunta y recibir una respuesta correcta por el parlante, tomada de una fuente de datos del laboratorio y no de memoria inventada.</p>
+<table class="check">
+<tr><td>☐</td><td>Conecta a Wi‑Fi</td></tr>
+<tr><td>☐</td><td>Abre WSS con gateway</td></tr>
+<tr><td>☐</td><td>PTT inicia streaming</td></tr>
+<tr><td>☐</td><td>Audio llega limpio</td></tr>
+<tr><td>☐</td><td>Modelo entiende español</td></tr>
+<tr><td>☐</td><td>Tool consulta material real</td></tr>
+<tr><td>☐</td><td>Respuesta vuelve por audio</td></tr>
+<tr><td>☐</td><td>Latencia subjetiva aceptable</td></tr>
+<tr><td>☐</td><td>No hay API key persistente en el dispositivo</td></tr>
+</table>
+</div>
+</section>
+
+<section id="testing">
+<div class="section-title"><span>15</span><h2>Plan de pruebas</h2></div>
+<div class="grid">
+<div class="card"><h3>Audio</h3><ul><li>Ruido ambiente.</li><li>Distancia 30/60/100 cm.</li><li>Eco del propio parlante.</li><li>Interrupciones.</li><li>Ganancia.</li></ul></div>
+<div class="card"><h3>Red</h3><ul><li>Wi‑Fi débil.</li><li>Corte de router.</li><li>Reconnect.</li><li>Chunks perdidos.</li><li>Reinicio de gateway.</li></ul></div>
+<div class="card"><h3>Dominio</h3><ul><li>Dilución 1%, 10%, 50%.</li><li>Escalado 1 g → 25 g.</li><li>Material puro vs solución.</li><li>Undo.</li><li>Versionado.</li></ul></div>
+<div class="card"><h3>Seguridad</h3><ul><li>Token inválido.</li><li>Rate limit.</li><li>Tool write sin confirmación.</li><li>Inyección en notas.</li><li>Secret scanning.</li></ul></div>
+</div>
+</section>
+
+<section id="observabilidad">
+<div class="section-title"><span>16</span><h2>Observabilidad</h2></div>
+<div class="card full">
+<table>
+<tr><th>Métrica</th><th>Meta inicial</th></tr>
+<tr><td>Tiempo PTT → primer audio de respuesta</td><td>Medir; optimizar antes de agregar wake word</td></tr>
+<tr><td>Reconexiones por sesión</td><td>&lt; 1 promedio</td></tr>
+<tr><td>Tool calls fallidos</td><td>&lt; 1%</td></tr>
+<tr><td>Modificaciones sin confirmación</td><td>0</td></tr>
+<tr><td>Errores de cálculo detectados en tests</td><td>0</td></tr>
+<tr><td>Crash/reboot inesperado</td><td>0 en sesión normal</td></tr>
+</table>
+</div>
+</section>
+
+<section id="estructura">
+<div class="section-title"><span>17</span><h2>Estructura futura del repositorio</h2></div>
+<div class="card full">
+<pre>perfume-bench-assistant/
+├── README.md
+├── docs/
+│   ├── architecture.md
+│   ├── hardware.md
+│   ├── protocol.md
+│   └── security.md
+├── firmware/
+│   ├── platformio.ini
+│   ├── include/
+│   │   ├── config.example.h
+│   │   └── protocol.h
+│   └── src/
+│       ├── main.cpp
+│       ├── audio.cpp
+│       ├── network.cpp
+│       ├── ui.cpp
+│       └── ota.cpp
+├── gateway/
+│   ├── src/
+│   │   ├── ws.ts
+│   │   ├── openai.ts
+│   │   ├── protocol.ts
+│   │   └── tools/
+│   └── package.json
+├── app/
+│   ├── dashboard/
+│   └── api/
+├── packages/
+│   ├── lab-domain/
+│   └── shared-types/
+├── db/
+│   ├── schema.sql
+│   └── seed/
+├── tests/
+│   ├── calculations/
+│   ├── tools/
+│   └── protocol/
+└── infra/
+    └── vercel.json</pre>
+</div>
+</section>
+
+<section id="snippets">
+<div class="section-title"><span>18</span><h2>Snippets de arranque</h2></div>
+<div class="card full">
+<h3><code>platformio.ini</code> conceptual</h3>
+<pre>[env:esp32-s3]
+platform = espressif32
+board = esp32-s3-devkitc-1
+framework = arduino
+monitor_speed = 115200
+board_build.psram = enabled
+
+lib_deps =
+  links2004/WebSockets
+  bodmer/TFT_eSPI
+  bblanchon/ArduinoJson</pre>
+<h3>Contrato TypeScript de una tool</h3>
+<pre>type ToolResult&lt;T&gt; = {
+  ok: boolean;
+  data?: T;
+  error?: string;
+  source?: string;
+};
+
+async function getMaterial(name: string): Promise&lt;ToolResult&lt;Material&gt;&gt; {
+  // consulta DB; nunca completar con valores inferidos por el modelo
+}</pre>
+<h3>Regla de commit</h3>
+<pre>POST /api/formulas/:id/commit
+
+body:
+{
+  "parent_version": 7,
+  "reason": "Hedione +15%",
+  "changes": [
+    {"material_id":"hedione","from_g":0.380,"to_g":0.437}
+  ],
+  "confirmed_by_user": true
+}</pre>
+</div>
+</section>
+
+<section id="decisiones">
+<div class="section-title"><span>19</span><h2>Decisiones de diseño ya tomadas</h2></div>
+<div class="card full">
+<table>
+<tr><th>Tema</th><th>Decisión</th><th>Motivo</th></tr>
+<tr><td>Interacción inicial</td><td>Push-to-talk</td><td>Menos falsos disparos y menor complejidad</td></tr>
+<tr><td>MCU</td><td>ESP32-S3 N16R8</td><td>PSRAM + buen soporte de audio/IoT</td></tr>
+<tr><td>Audio</td><td>I²S digital</td><td>Menos problemas que ADC analógico</td></tr>
+<tr><td>LLM voz</td><td>OpenAI Realtime</td><td>Turnos naturales, audio y tools</td></tr>
+<tr><td>API key</td><td>Sólo servidor</td><td>Seguridad</td></tr>
+<tr><td>Fuente de verdad</td><td>DB estructurada</td><td>Inventario y fórmulas auditables</td></tr>
+<tr><td>Escrituras</td><td>Confirmación explícita</td><td>Evitar cambios accidentales</td></tr>
+<tr><td>Fórmulas</td><td>Versionado inmutable</td><td>Trazabilidad de laboratorio</td></tr>
+<tr><td>Backend</td><td>Node/TypeScript</td><td>Ecosistema web + WebSockets</td></tr>
+<tr><td>Frontend</td><td>Dashboard web</td><td>Administración y revisión visual</td></tr>
+</table>
+</div>
+</section>
+
+<section id="referencias">
+<div class="section-title"><span>20</span><h2>Referencias técnicas</h2></div>
+<div class="card full">
+<ul>
+<li><a href="https://developers.openai.com/api/docs/guides/realtime" target="_blank">OpenAI — Getting started with the Realtime API</a></li>
+<li><a href="https://developers.openai.com/api/docs/guides/realtime-conversations" target="_blank">OpenAI — Realtime conversations</a></li>
+<li><a href="https://developers.openai.com/api/docs/guides/conversation-state" target="_blank">OpenAI — Conversation state / Conversations API</a></li>
+<li><a href="https://github.com/openai/openai-cookbook/blob/main/examples/voice_solutions/running_realtime_api_speech_on_esp32_arduino_edge_runtime_elatoai.md" target="_blank">OpenAI Cookbook — ESP32 + Realtime speech</a></li>
+<li><a href="https://github.com/iollama/Voice-Assistant-5" target="_blank">Voice-Assistant-5 — ESP32-S3 + INMP441 + MAX98357A</a></li>
+<li><a href="https://github.com/FabrikappAgency/esp32-realtime-voice-assistant" target="_blank">ESP32 Realtime Voice Assistant — firmware/backend reference</a></li>
+<li><a href="https://vercel.com/changelog/websocket-support-is-now-in-public-beta" target="_blank">Vercel — WebSocket support in Functions</a></li>
+</ul>
+<p class="muted small">Las APIs y modelos pueden cambiar. Antes de congelar firmware/backend, validar los nombres de modelo, formatos de eventos y límites vigentes.</p>
+</div>
+</section>
+
+<section id="siguiente">
+<div class="section-title"><span>21</span><h2>Siguiente acción concreta</h2></div>
+<div class="card full">
+<p class="kpi">Comprar/confirmar hardware y construir el spike de audio.</p>
+<ol>
+<li>Fijar el modelo exacto de ESP32-S3 N16R8.</li>
+<li>Conectar INMP441 y registrar audio local.</li>
+<li>Conectar MAX98357A y reproducir PCM.</li>
+<li>Agregar PTT.</li>
+<li>Crear gateway mínimo.</li>
+<li>Conectar Realtime.</li>
+<li>Implementar primera tool real: <code>inventory.get_material</code>.</li>
+</ol>
+<p class="good"><strong>Criterio de salida:</strong> preguntar por Safraleine y escuchar una respuesta tomada de un registro real.</p>
+</div>
+</section>
+</main>
+
+<footer class="footer">
+<div class="wrap">PerfumeBench Assistant · Documento maestro inicial · 24 de septiembre de 2026</div>
+</footer>
+</body>
+</html>
